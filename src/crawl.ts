@@ -27,7 +27,7 @@ async function main() {
     .filter((row) => {
       const dt = row.get('dt');
       // return formatDateTime(dt).isAfter(dayjs('2023-12-02'));
-      return formatDateTime(dt).isAfter(dayjs().subtract(2, 'day'));
+      return formatDateTime(dt).isAfter(dayjs().subtract(1, 'day'));
     })
     .map((row) => {
       return {
