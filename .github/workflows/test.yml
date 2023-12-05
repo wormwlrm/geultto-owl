@@ -20,3 +20,7 @@ jobs:
         run: npm i -g yarn && yarn && yarn playwright install
       - name: Run checker
         run: yarn test
+        env:
+          SHEET_ID: ${{ secrets.SHEET_ID }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

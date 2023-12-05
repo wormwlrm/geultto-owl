@@ -2,10 +2,13 @@ import { GoogleSpreadsheet } from 'google-spreadsheet';
 import dayjs from 'dayjs';
 import fs from 'fs';
 import path from 'path';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 async function main() {
-  const doc = new GoogleSpreadsheet('***', {
-    apiKey: '***',
+  const doc = new GoogleSpreadsheet(process.env.SHEET_ID as string, {
+    apiKey: process.env.GOOGLE_API_KEY as string,
   });
 
   await doc.loadInfo();

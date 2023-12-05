@@ -10,3 +10,4 @@ screenshots
 
 src/data.json
 src/message.json
+.env

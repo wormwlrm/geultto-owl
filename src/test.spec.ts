@@ -7,6 +7,9 @@ import {
   getSumOfCharacterCountTest,
 } from './testcases.ts';
 import { guessBlogType, BlogType } from './blog.ts';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const map = new Map();
 
@@ -18,7 +21,7 @@ const getScreenshotOptions = (round, koName) => {
   };
 };
 
-const slack = new WebClient('***');
+const slack = new WebClient(process.env.SLACK_BOT_TOKEN || '');
 
 for (const line of data) {
   const { round, team, koName, dt, title, contentUrl } = line;
