@@ -4,5 +4,9 @@ node_modules/
 /playwright/.cache/
 
 constants.ts
-/screenshots/
+screenshots
 *.csv
+/dist
+
+src/data.json
+src/message.json

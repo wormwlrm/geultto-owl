@@ -4,13 +4,26 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx playwright test",
-    "result": "npx playwright show-report"
+    "e2e": "npx playwright test",
+    "result": "npx playwright show-report",
+    "crawl": "ts-node src/crawl.ts",
+    "slack": "ts-node src/slack.ts",
+    "test": "yarn crawl && yarn slack && yarn e2e"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.34.3"
+    "@playwright/test": "^1.34.3",
+    "@types/node": "^20.10.3",
+    "nodemon": "^3.0.2",
+    "ts-node": "^10.9.1"
+  },
+  "dependencies": {
+    "@slack/web-api": "^6.10.0",
+    "dayjs": "^1.11.10",
+    "google-auth-library": "^9.4.1",
+    "google-spreadsheet": "^4.1.1",
+    "typescript": "^5.3.2"
   }
 }
