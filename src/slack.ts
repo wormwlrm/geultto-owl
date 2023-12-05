@@ -10,7 +10,7 @@ async function main() {
   const slack = new WebClient(process.env.SLACK_BOT_TOKEN || '');
 
   const message = await slack.chat.postMessage({
-    channel: '#슬랙-봇-테스트',
+    channel: process.env.SLACK_CHANNEL_ID || '',
     // 한국시간 9시간 더해줌
     text: `${dayjs().add(9, 'hour').format('YYYY-MM-DD HH:mm:ss')} 테스트`,
   });
