@@ -8,7 +8,9 @@ async function main() {
 
   const message = await slack.chat.postMessage({
     channel: '#슬랙-봇-테스트',
-    text: `${dayjs().format('YYYY-MM-DD HH:mm:ss')} 테스트를 시작합니다.`,
+    text: `${dayjs()
+      .add(9, 'hour')
+      .format('YYYY-MM-DD HH:mm:ss')} 테스트를 시작합니다.`,
   });
 
   console.log(message);

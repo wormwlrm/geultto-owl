@@ -26,8 +26,9 @@ async function main() {
   const today = rows
     .filter((row) => {
       const dt = row.get('dt');
-      // return formatDateTime(dt).isAfter(dayjs('2023-12-02'));
-      return formatDateTime(dt).isAfter(dayjs().subtract(1, 'day'));
+      // 한국시간 9시간 더해줌
+      const yesterday = dayjs().add(9, 'hour').subtract(1, 'day');
+      return formatDateTime(dt).isAfter(yesterday);
     })
     .map((row) => {
       return {
