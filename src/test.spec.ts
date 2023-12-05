@@ -23,6 +23,16 @@ const getScreenshotOptions = (round, koName) => {
 
 const slack = new WebClient(process.env.SLACK_BOT_TOKEN || '');
 
+test.describe('테스트 시작', () => {
+  test('테스트 시작 메시지 전송', async () => {
+    await slack.chat.postMessage({
+      channel: message.channel,
+      thread_ts: message.ts,
+      text: `오늘 글 올린 사람: 총 ${data.length} 명`,
+    });
+  });
+});
+
 for (const line of data) {
   const { round, team, koName, dt, title, contentUrl } = line;
 
