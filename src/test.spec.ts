@@ -60,11 +60,13 @@ const getComment = ({
 } 글자 수 테스트:  (${totalCharacterCount}/${minimumRequiredCharacterCount})
 `;
 
-const handleRedirect = async ({
+const connect = async ({
   blogType,
+  contentUrl,
   page,
 }: {
   blogType: BlogType;
+  contentUrl: string;
   page: Page;
 }) => {
   // notion.so URL이 notion.site 로 자동 리다이렉션됨
@@ -76,15 +78,18 @@ const handleRedirect = async ({
 
   // 네이버 PC 블로그는 모바일로 자동 리다이렉트
   if (blogType === BlogType.NaverPc) {
-    await page.waitForFunction(() => {
-      return document.querySelector('.se-main-container');
-    });
+    await page.goto(contentUrl.replace('blog.naver.com', 'm.blog.naver.com'));
+    return;
   }
+
+  await page.goto(contentUrl);
 };
 
 test.describe('테스트 시작', () => {
   const totalCount = data.length;
-  const submittedCount = data.filter((line) => line.contentUrl).length;
+  const submittedCount = data.filter(
+    (line: { contentUrl: string }) => line.contentUrl
+  ).length;
   const passedCount = totalCount - submittedCount;
 
   test('테스트 시작 메시지 전송', async () => {
@@ -104,13 +109,15 @@ for (const line of data) {
   map.set(koName, true);
 
   test(`${koName} 테스트`, async ({ page }) => {
-    await page.goto(contentUrl);
-
     const blogType = guessBlogType(contentUrl);
 
-    console.log(blogType);
+    await connect({
+      blogType,
+      page,
+      contentUrl,
+    });
 
-    await handleRedirect({ blogType, page });
+    console.log(`${koName} 님의 블로그는 ${blogType}로 추측`);
 
     // 테스트 별 실패 여부 체크
     const testCase = {

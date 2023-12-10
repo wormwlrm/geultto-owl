@@ -32,9 +32,20 @@ export const getMinimumRequiredHeightTest = async ({
     return Math.max(body?.scrollHeight ?? 0, body?.offsetHeight ?? 0);
   });
 
+  const heights = [htmlHeight, bodyHeight];
+
+  if (blogType === BlogType.NotionSite || blogType === BlogType.NotionSo) {
+    const notionHeight = await page.evaluate(() => {
+      const main = document.querySelector('#notion-app main');
+      return main?.scrollHeight ?? 0;
+    });
+
+    heights.push(notionHeight);
+  }
+
   console.log(htmlHeight, bodyHeight, codeHeight);
 
-  const realHeight = Math.max(htmlHeight, bodyHeight) - codeHeight;
+  const realHeight = Math.max(...heights) - codeHeight;
 
   return {
     minimumRequiredHeight,
@@ -53,7 +64,9 @@ export const getSumOfCharacterCountTest = async ({
   const minimumRequiredCharacterCount = 1000;
   let tagToCheck = ['p', 'li', 'ol', 'ul'];
 
-  if (blogType === BlogType.NotionSite) {
+  if (
+    [BlogType.NotionSite, BlogType.NotionSo, BlogType.Inblog].includes(blogType)
+  ) {
     tagToCheck.push('div');
   }
 

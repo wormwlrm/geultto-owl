@@ -9,6 +9,7 @@ export enum BlogType {
   GitHubPages = 'github',
   Brunch = 'brunch',
   Oopy = 'oopy',
+  Inblog = 'inblog',
   Unknown = 'unknown',
 }
 
@@ -53,6 +54,10 @@ export const guessBlogType = (url: string): BlogType => {
     return BlogType.Oopy;
   }
 
+  if (['inblog.ai'].some((domain) => url.includes(domain))) {
+    return BlogType.Inblog;
+  }
+
   return BlogType.Unknown;
 };
 
@@ -62,36 +67,40 @@ export const getMinimumRequiredHeight = ({
   blogType: BlogType;
 }) => {
   if (blogType === BlogType.NotionSite || blogType === BlogType.NotionSo) {
-    return 3000;
+    return 2000;
   }
 
   if (blogType === BlogType.NaverMobile || blogType === BlogType.NaverPc) {
-    return 3500;
+    return 2000;
   }
 
   if (blogType === BlogType.Velog) {
-    return 4000;
+    return 2000;
+  }
+
+  if (blogType === BlogType.Medium) {
+    return 2000;
+  }
+
+  if (blogType === BlogType.Brunch) {
+    return 2000;
+  }
+
+  if (blogType === BlogType.Oopy) {
+    return 2000;
+  }
+
+  if (blogType === BlogType.Inblog) {
+    return 2000;
   }
 
   if (blogType === BlogType.Tistory) {
     // return 3000;
   }
 
-  if (blogType === BlogType.Medium) {
-    return 4000;
-  }
-
   if (blogType === BlogType.GitHubPages) {
     // return 3000;
   }
 
-  if (blogType === BlogType.Brunch) {
-    return 2500;
-  }
-
-  if (blogType === BlogType.Oopy) {
-    return 2500;
-  }
-
-  return 3000;
+  return 2000;
 };
