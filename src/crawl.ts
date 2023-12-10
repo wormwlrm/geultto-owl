@@ -30,7 +30,7 @@ async function main() {
     .filter((row) => {
       const dt = row.get('dt');
       // 한국시간 9시간 더해줌
-      const yesterday = dayjs().add(9, 'hour').subtract(1, 'day');
+      const yesterday = dayjs().subtract(2, 'day').add(9, 'hour');
       return formatDateTime(dt).isAfter(yesterday);
     })
     .map((row) => {
