@@ -69,11 +69,12 @@ const connect = async ({
   contentUrl: string;
   page: Page;
 }) => {
-  // notion.so URL이 notion.site 로 자동 리다이렉션됨
   if (blogType === BlogType.NotionSite || blogType === BlogType.NotionSo) {
+    await page.goto(contentUrl);
     await page.waitForFunction(() => {
-      return document.querySelector('#notion-app main');
+      return document.querySelector('div[data-content-editable-root="true"]');
     });
+    return;
   }
 
   // 네이버 PC 블로그는 모바일로 자동 리다이렉트
@@ -176,7 +177,7 @@ for (const line of data) {
       const screenshotOptions = getScreenshotOptions(round, koName);
       if (blogType === BlogType.NotionSite) {
         await page
-          .locator('#notion-app main')
+          .locator('div[data-content-editable-root="true"]')
           .first()
           .screenshot({
             ...screenshotOptions,

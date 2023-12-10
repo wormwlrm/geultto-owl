@@ -36,14 +36,16 @@ export const getMinimumRequiredHeightTest = async ({
 
   if (blogType === BlogType.NotionSite || blogType === BlogType.NotionSo) {
     const notionHeight = await page.evaluate(() => {
-      const main = document.querySelector('#notion-app main');
+      const main = document.querySelector(
+        'div[data-content-editable-root="true"]'
+      );
       return main?.scrollHeight ?? 0;
     });
 
     heights.push(notionHeight);
   }
 
-  console.log(htmlHeight, bodyHeight, codeHeight);
+  console.log(...heights, codeHeight);
 
   const realHeight = Math.max(...heights) - codeHeight;
 
