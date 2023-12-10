@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, Page } from '@playwright/test';
 import data from './data.json';
 import { WebClient } from '@slack/web-api';
 import message from './message.json';
@@ -12,6 +12,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const map = new Map();
+const slack = new WebClient(process.env.SLACK_BOT_TOKEN || '');
 
 const getScreenshotOptions = (round, koName) => {
   return {
@@ -21,14 +22,82 @@ const getScreenshotOptions = (round, koName) => {
   };
 };
 
-const slack = new WebClient(process.env.SLACK_BOT_TOKEN || '');
+const getComment = ({
+  round,
+  koName,
+  contentUrl,
+  testCase,
+  realHeight,
+  totalCharacterCount,
+  minimumRequiredCharacterCount,
+  minimumRequiredHeight,
+  codeRatio,
+}: {
+  round: string;
+  koName: string;
+  contentUrl: string;
+  testCase: {
+    height: boolean;
+    characterCount: boolean;
+    codeRatio: boolean;
+  };
+  codeRatio: number;
+  realHeight: number;
+  totalCharacterCount: number;
+  minimumRequiredHeight: number;
+  minimumRequiredCharacterCount: number;
+}) => `${round} ${koName}
+
+> - URL: ${contentUrl}
+> - ${
+  testCase.height ? ':white_check_mark:' : ':x:'
+} 코드 제외 높이 테스트: (${realHeight}/${minimumRequiredHeight})
+> - ${
+  testCase.codeRatio ? ':white_check_mark:' : ':x:'
+} 전체 높이 기준 코드 비율: (${codeRatio}%)
+> - ${
+  testCase.characterCount ? ':white_check_mark:' : ':x:'
+} 글자 수 테스트:  (${totalCharacterCount}/${minimumRequiredCharacterCount})
+`;
+
+const handleRedirect = async ({
+  blogType,
+  page,
+}: {
+  blogType: BlogType;
+  page: Page;
+}) => {
+  // notion.so URL은 notion.site 로 리다이렉션 해야 함
+  if (
+    blogType === BlogType.NotionSo &&
+    page.getByText('아래의 링크를 따라 외부 사이트로 이동하세요.', {
+      exact: true,
+    })
+  ) {
+    await page.locator('a').first().click();
+    await page.waitForFunction(() => {
+      return document.querySelector('#notion-app main');
+    });
+  }
+
+  // 네이버 PC 블로그는 모바일로 자동 리다이렉트
+  if (blogType === BlogType.NaverPc) {
+    await page.waitForFunction(() => {
+      return document.querySelector('.se-main-container');
+    });
+  }
+};
 
 test.describe('테스트 시작', () => {
+  const totalCount = data.length;
+  const submittedCount = data.filter((line) => line.contentUrl).length;
+  const passedCount = totalCount - submittedCount;
+
   test('테스트 시작 메시지 전송', async () => {
     await slack.chat.postMessage({
       channel: message.channel,
       thread_ts: message.ts,
-      text: `오늘 글 올린 사람: 총 ${data.length} 명`,
+      text: `테스트 대상: 총 ${data.length} 명 (제출 ${submittedCount} 명, 패스 ${passedCount} 명)`,
     });
   });
 });
@@ -45,56 +114,66 @@ for (const line of data) {
 
     const blogType = guessBlogType(contentUrl);
 
+    console.log(blogType);
+
+    await handleRedirect({ blogType, page });
+
     // 테스트 별 실패 여부 체크
     const testCase = {
       height: true,
+      codeRatio: true,
       characterCount: true,
     };
 
-    // notion.so URL은 notion.site 로 리다이렉션 해야 함
-    if (
-      blogType === BlogType.NOTION_SO &&
-      page.getByText('아래의 링크를 따라 외부 사이트로 이동하세요.', {
-        exact: true,
-      })
-    ) {
-      await page.locator('a').first().click();
-      await page.waitForFunction(() => {
-        return document.querySelector('#notion-app main');
-      });
-    }
-
-    // 높이 테스트
-    const { htmlHeight, codeHeight, MINIMUM_REQUIRED_HEIGHT } =
+    // 코드 블럭을 제외한 높이를 테스트
+    const { realHeight, codeHeight, minimumRequiredHeight } =
       await getMinimumRequiredHeightTest({
         page,
+        blogType,
       });
 
-    const realHeight = htmlHeight - codeHeight;
-
-    if (realHeight < MINIMUM_REQUIRED_HEIGHT) {
+    if (realHeight < minimumRequiredHeight) {
       testCase.height = false;
     }
 
+    // 코드 비율 테스트
+    const codeRatio = Math.min(
+      Math.max(Math.round((codeHeight / (realHeight + codeHeight)) * 100), 0),
+      100
+    );
+
+    const maximumCodeRatio = 75;
+
+    if (codeRatio >= maximumCodeRatio) {
+      testCase.codeRatio = false;
+    }
+
     // 글자수 테스트
-    const { totalCharacterCount, MINIMUM_REQUIRED_CHARACTER_COUNT } =
+    const { totalCharacterCount, minimumRequiredCharacterCount } =
       await getSumOfCharacterCountTest({ page, blogType });
-    if (totalCharacterCount < MINIMUM_REQUIRED_CHARACTER_COUNT) {
+
+    if (totalCharacterCount < minimumRequiredCharacterCount) {
       testCase.characterCount = false;
     }
 
-    console.log(`> - URL: ${contentUrl}
-> - 높이 테스트: ${testCase.height ? '성공' : '실패'}
->   - 기준 높이: ${MINIMUM_REQUIRED_HEIGHT}
->   - 실제 높이: ${realHeight}
-> - 글자수 테스트: ${testCase.characterCount ? '성공' : '실패'}
->   - 기준 글자수: ${MINIMUM_REQUIRED_CHARACTER_COUNT}
->   - 실제 글자수: ${totalCharacterCount}`);
+    const comment = getComment({
+      round,
+      koName,
+      contentUrl,
+      testCase,
+      realHeight,
+      codeRatio,
+      totalCharacterCount,
+      minimumRequiredCharacterCount,
+      minimumRequiredHeight,
+    });
 
-    // 실패 시 스크린샷
+    console.log(comment);
+
+    // 실패 시 스크린샷 촬영 후 슬랙 전송
     if (!testCase.height || !testCase.characterCount) {
       const screenshotOptions = getScreenshotOptions(round, koName);
-      if (blogType === BlogType.NOTION_SITE) {
+      if (blogType === BlogType.NotionSite) {
         await page
           .locator('#notion-app main')
           .first()
@@ -111,15 +190,7 @@ for (const line of data) {
         thread_ts: message?.ts,
         channel_id: message?.channel,
         filename: `${round}-${koName}.jpeg`,
-        initial_comment: `${round} ${koName}
-> - URL: ${contentUrl}
-> - 높이 테스트: ${
-          testCase.height ? '성공' : '실패'
-        } (${MINIMUM_REQUIRED_HEIGHT}/${realHeight})
-> - 글자수 테스트: ${
-          testCase.characterCount ? '성공' : '실패'
-        } (${MINIMUM_REQUIRED_CHARACTER_COUNT}/${totalCharacterCount})
-        `,
+        initial_comment: comment,
         file: `./screenshots/${round}/${koName}.jpeg`,
       });
     }

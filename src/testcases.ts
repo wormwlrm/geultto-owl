@@ -1,34 +1,45 @@
 import { Page } from '@playwright/test';
-import { BlogType, TBlogType } from './blog';
+import { BlogType, getMinimumRequiredHeight } from './blog';
 
 export const getMinimumRequiredHeightTest = async ({
   page,
+  blogType,
 }: {
   page: Page;
-}) => {
-  const MINIMUM_REQUIRED_HEIGHT = 4000;
+  blogType: BlogType;
+}): Promise<{
+  minimumRequiredHeight: number;
+  realHeight: number;
+  codeHeight: number;
+}> => {
+  const minimumRequiredHeight = getMinimumRequiredHeight({ blogType });
 
   const codeHeight = await page.evaluate(() => {
-    const codes = document.querySelectorAll('code');
+    const elements = document.querySelectorAll('code');
 
-    return Array.from(codes).reduce((acc, cur) => {
-      return acc + cur.clientHeight;
+    return Array.from(elements).reduce((acc, cur) => {
+      return acc + cur.offsetHeight;
     }, 0);
   });
 
   const htmlHeight = await page.evaluate(() => {
-    const htmlScrollHeight = document.querySelector('html')?.scrollHeight ?? 0;
-    const bodyScrollHeight = document.querySelector('body')?.scrollHeight ?? 0;
-    const notionScrollHeight =
-      document.querySelector('#notion-app main')?.scrollHeight ?? 0;
-
-    return Math.max(htmlScrollHeight, bodyScrollHeight, notionScrollHeight);
+    const html = document.querySelector('html');
+    return Math.max(html?.scrollHeight ?? 0, html?.offsetHeight ?? 0);
   });
 
+  const bodyHeight = await page.evaluate(() => {
+    const body = document.querySelector('body');
+    return Math.max(body?.scrollHeight ?? 0, body?.offsetHeight ?? 0);
+  });
+
+  console.log(htmlHeight, bodyHeight, codeHeight);
+
+  const realHeight = Math.max(htmlHeight, bodyHeight) - codeHeight;
+
   return {
-    MINIMUM_REQUIRED_HEIGHT,
+    minimumRequiredHeight,
     codeHeight,
-    htmlHeight,
+    realHeight,
   };
 };
 
@@ -36,26 +47,29 @@ export const getSumOfCharacterCountTest = async ({
   blogType,
   page,
 }: {
-  blogType: TBlogType;
+  blogType: BlogType;
   page: Page;
 }) => {
-  const MINIMUM_REQUIRED_CHARACTER_COUNT = 1000;
-  let tagToCheck = 'p';
+  const minimumRequiredCharacterCount = 1000;
+  let tagToCheck = ['p', 'li', 'ol', 'ul'];
 
-  if (blogType === BlogType.NOTION_SITE) {
-    tagToCheck = 'div';
+  if (blogType === BlogType.NotionSite) {
+    tagToCheck.push('div');
   }
-
-  const texts = await page.locator(tagToCheck).allTextContents();
 
   let totalCharacterCount: number = 0;
 
-  texts.forEach((text) => {
-    totalCharacterCount += text.length;
-  });
+  for (const tag of tagToCheck) {
+    const texts = await page.locator(tag).allTextContents();
+
+    totalCharacterCount += texts.reduce((acc, cur) => {
+      // 공백과 줄바꿈 삭제
+      return acc + cur.replaceAll(/[\r\n\t\s]/g, '').length;
+    }, 0);
+  }
 
   return {
     totalCharacterCount,
-    MINIMUM_REQUIRED_CHARACTER_COUNT,
+    minimumRequiredCharacterCount,
   };
 };
