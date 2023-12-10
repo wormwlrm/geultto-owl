@@ -2,8 +2,8 @@ name: checker-cron
 
 on:
   schedule:
-    # 매일 KST 23:50:00에 실행 (UTC+9), 한국 타임존을 고려하여 23시에서 9시간을 빼줌
-    - cron: 50 14 * * *
+    # 매일 KST 자정에 실행 (UTC+9), 한국 타임존을 고려하여 24시에서 9시간을 빼줌
+    - cron: 00 15 * * *
   workflow_dispatch:
     # 이 옵션을 설정해주어야 Github 웹에서 매뉴얼하게 실행 가능
 

@@ -67,14 +67,8 @@ const handleRedirect = async ({
   blogType: BlogType;
   page: Page;
 }) => {
-  // notion.so URL은 notion.site 로 리다이렉션 해야 함
-  if (
-    blogType === BlogType.NotionSo &&
-    page.getByText('아래의 링크를 따라 외부 사이트로 이동하세요.', {
-      exact: true,
-    })
-  ) {
-    await page.locator('a').first().click();
+  // notion.so URL이 notion.site 로 자동 리다이렉션됨
+  if (blogType === BlogType.NotionSite || blogType === BlogType.NotionSo) {
     await page.waitForFunction(() => {
       return document.querySelector('#notion-app main');
     });
