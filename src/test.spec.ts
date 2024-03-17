@@ -86,7 +86,10 @@ const connect = async ({
   await page.goto(contentUrl);
 
   if (blogType === BlogType.Unknown) {
-    await page.locator('div.notion-app').waitFor({ timeout: 1000 });
+    await page
+      .locator('div.notion-app')
+      .waitFor({ timeout: 1000 })
+      .catch(() => undefined);
 
     if (
       await page
