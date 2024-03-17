@@ -8,7 +8,8 @@
     "result": "npx playwright show-report",
     "crawl": "ts-node src/crawl.ts",
     "slack": "ts-node src/slack.ts",
-    "test": "yarn crawl && yarn slack && yarn e2e"
+    "finish": "ts-node src/finish.ts",
+    "test": "yarn crawl && yarn slack && yarn e2e && yarn finish"
   },
   "keywords": [],
   "author": "",
