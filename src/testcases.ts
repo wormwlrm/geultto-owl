@@ -67,7 +67,12 @@ export const getSumOfCharacterCountTest = async ({
   let tagToCheck = ['p', 'li', 'ol', 'ul'];
 
   if (
-    [BlogType.NotionSite, BlogType.NotionSo, BlogType.Inblog].includes(blogType)
+    [
+      BlogType.NotionSite,
+      BlogType.NotionSo,
+      BlogType.Inblog,
+      BlogType.Oopy,
+    ].includes(blogType)
   ) {
     tagToCheck.push('div');
   }

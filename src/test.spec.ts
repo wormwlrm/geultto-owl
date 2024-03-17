@@ -118,6 +118,9 @@ for (const line of data) {
       contentUrl,
     });
 
+    // SPA 사이트 데이터 패치를 위해 3초 대기
+    await page.waitForTimeout(3000);
+
     console.log(`${koName} 님의 블로그는 ${blogType}로 추측`);
 
     // 테스트 별 실패 여부 체크
