@@ -84,6 +84,19 @@ const connect = async ({
   }
 
   await page.goto(contentUrl);
+
+  if (blogType === BlogType.Unknown) {
+    await page.locator('div.notion-app').waitFor({ timeout: 1000 });
+
+    if (
+      await page
+        .locator('div.notion-app')
+        .isVisible()
+        .catch(() => false)
+    ) {
+      return BlogType.NotionSo;
+    }
+  }
 };
 
 test.describe('테스트 시작', () => {
@@ -110,13 +123,14 @@ for (const line of data) {
   map.set(koName, true);
 
   test(`${koName} 테스트`, async ({ page }) => {
-    const blogType = guessBlogType(contentUrl);
+    let blogType = guessBlogType(contentUrl);
 
-    await connect({
-      blogType,
-      page,
-      contentUrl,
-    });
+    blogType =
+      (await connect({
+        blogType,
+        page,
+        contentUrl,
+      })) ?? blogType;
 
     // SPA 사이트 데이터 패치를 위해 3초 대기
     await page.waitForTimeout(3000);
