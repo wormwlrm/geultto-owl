@@ -236,26 +236,25 @@ for (const line of data) {
       });
 
       if (process.env.NOTICE_TO_USER === 'true') {
-        console.log('유저에게도 사진 보냄');
-        // await slack.files.uploadV2({
-        //   thread_ts: ts,
-        //   channel_id: user[koName],
-        //   filename: `${round}-${koName}.jpeg`,
-        //   initial_comment: getComment({
-        //     round,
-        //     koName,
-        //     contentUrl,
-        //     testCase,
-        //     realHeight,
-        //     codeRatio,
-        //     totalCharacterCount,
-        //     minimumRequiredCharacterCount,
-        //     minimumRequiredHeight,
-        //     maximumCodeRatio,
-        //     isNoticeToUser: true,
-        //   }),
-        //   file: `./screenshots/${round}/${koName}.jpeg`,
-        // });
+        await slack.files.uploadV2({
+          thread_ts: ts,
+          channel_id: user[koName],
+          filename: `${round}-${koName}.jpeg`,
+          initial_comment: getComment({
+            round,
+            koName,
+            contentUrl,
+            testCase,
+            realHeight,
+            codeRatio,
+            totalCharacterCount,
+            minimumRequiredCharacterCount,
+            minimumRequiredHeight,
+            maximumCodeRatio,
+            isNoticeToUser: true,
+          }),
+          file: `./screenshots/${round}/${koName}.jpeg`,
+        });
       }
     }
   });

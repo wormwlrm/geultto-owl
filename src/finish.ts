@@ -9,7 +9,7 @@ async function main() {
 
   await slack.chat.postMessage({
     channel: process.env.SLACK_CHANNEL_ID || '',
-    thread_ts: message.ts,
+    // thread_ts: message.ts,
     text: '테스트 끝!',
   });
 }
