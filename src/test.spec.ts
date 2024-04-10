@@ -1,12 +1,13 @@
 import { test, Page } from '@playwright/test';
 import data from './data.json';
+import user from './user.json';
 import { WebClient } from '@slack/web-api';
 import message from './message.json';
 import {
   getMinimumRequiredHeightTest,
   getSumOfCharacterCountTest,
 } from './testcases.ts';
-import { guessBlogType, BlogType } from './blog.ts';
+import { guessBlogTypeByUrl, BlogType } from './blog.ts';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -32,6 +33,8 @@ const getComment = ({
   minimumRequiredCharacterCount,
   minimumRequiredHeight,
   codeRatio,
+  maximumCodeRatio,
+  isNoticeToUser,
 }: {
   round: string;
   koName: string;
@@ -46,19 +49,29 @@ const getComment = ({
   totalCharacterCount: number;
   minimumRequiredHeight: number;
   minimumRequiredCharacterCount: number;
-}) => `${round} ${koName}
+  maximumCodeRatio: number;
+  isNoticeToUser: boolean;
+}) => `${koName} 님의 ${round} <${contentUrl}|제출 글>을 분석했빼미! :owl:
 
-> - URL: ${contentUrl}
-> - ${
-  testCase.height ? ':white_check_mark:' : ':x:'
-} 코드 제외 높이 테스트: (${realHeight}/${minimumRequiredHeight})
-> - ${
-  testCase.codeRatio ? ':white_check_mark:' : ':x:'
-} 전체 높이 기준 코드 비율: (${codeRatio}%)
-> - ${
-  testCase.characterCount ? ':white_check_mark:' : ':x:'
-} 글자 수 테스트:  (${totalCharacterCount}/${minimumRequiredCharacterCount})
-`;
+${
+  testCase.characterCount ? ':white_check_mark:' : ':warning:'
+} 글자 수는 (${totalCharacterCount}자 / ${minimumRequiredCharacterCount}자) 로 파악했빼미.
+${
+  isNoticeToUser
+    ? ''
+    : `${
+        testCase.height ? ':white_check_mark:' : ':warning:'
+      } 코드 블럭을 제외한 본문 높이는 (${realHeight}px / ${minimumRequiredHeight}px) 으로 파악했빼미.`
+}
+${
+  isNoticeToUser
+    ? ''
+    : `${
+        testCase.codeRatio ? ':white_check_mark:' : ':warning:'
+      } 전체 높이 기준 코드 비율은 (${codeRatio}% / ${maximumCodeRatio}%) 로 파악했빼미.`
+}
+
+블로그 플랫폼의 종류, HTML 구조에 따라 결과가 다소 다르게 나올 수도 있음을 참고해빼미!`;
 
 const connect = async ({
   blogType,
@@ -84,22 +97,30 @@ const connect = async ({
   }
 
   await page.goto(contentUrl);
+};
 
-  if (blogType === BlogType.Unknown) {
-    await page
-      .locator('div.notion-app')
-      .waitFor({ timeout: 1000 })
-      .catch(() => undefined);
-
-    if (
-      await page
-        .locator('div.notion-app')
-        .isVisible()
-        .catch(() => false)
-    ) {
-      return BlogType.NotionSo;
-    }
+const guessBlogTypeByHTML = async ({
+  page,
+  blogType,
+}: {
+  page: Page;
+  blogType: BlogType;
+}) => {
+  if (blogType !== BlogType.Unknown) {
+    return blogType;
   }
+
+  const isNotionBased =
+    (await page
+      .locator('div[class^="notion-"]')
+      .count()
+      .catch(() => 0)) > 0;
+
+  if (isNotionBased) {
+    return BlogType.NotionBased;
+  }
+
+  return BlogType.Unknown;
 };
 
 test.describe('테스트 시작', () => {
@@ -119,26 +140,25 @@ test.describe('테스트 시작', () => {
 });
 
 for (const line of data) {
-  const { round, team, koName, dt, title, contentUrl } = line;
+  const { round, team, koName, dt, title, contentUrl, ts } = line;
 
   if (contentUrl === '' || map.has(koName)) continue;
 
   map.set(koName, true);
 
   test(`${koName} 테스트`, async ({ page }) => {
-    let blogType = guessBlogType(contentUrl);
+    let blogType = guessBlogTypeByUrl(contentUrl);
 
-    blogType =
-      (await connect({
-        blogType,
-        page,
-        contentUrl,
-      })) ?? blogType;
+    await connect({
+      blogType,
+      page,
+      contentUrl,
+    });
 
     // SPA 사이트 데이터 패치를 위해 3초 대기
     await page.waitForTimeout(3000);
 
-    console.log(`${koName} 님의 블로그는 ${blogType}로 추측`);
+    blogType = await guessBlogTypeByHTML({ page, blogType });
 
     // 테스트 별 실패 여부 체크
     const testCase = {
@@ -178,22 +198,9 @@ for (const line of data) {
       testCase.characterCount = false;
     }
 
-    const comment = getComment({
-      round,
-      koName,
-      contentUrl,
-      testCase,
-      realHeight,
-      codeRatio,
-      totalCharacterCount,
-      minimumRequiredCharacterCount,
-      minimumRequiredHeight,
-    });
-
-    console.log(comment);
-
     // 실패 시 스크린샷 촬영 후 슬랙 전송
-    if (!testCase.height || !testCase.characterCount) {
+    // TODO: 임시로 모든 유저에게 전송
+    if (true) {
       const screenshotOptions = getScreenshotOptions(round, koName);
       if (blogType === BlogType.NotionSite) {
         await page
@@ -212,9 +219,43 @@ for (const line of data) {
         thread_ts: message?.ts,
         channel_id: message?.channel,
         filename: `${round}-${koName}.jpeg`,
-        initial_comment: comment,
+        initial_comment: getComment({
+          round,
+          koName,
+          contentUrl,
+          testCase,
+          realHeight,
+          codeRatio,
+          totalCharacterCount,
+          minimumRequiredCharacterCount,
+          minimumRequiredHeight,
+          maximumCodeRatio,
+          isNoticeToUser: false,
+        }),
         file: `./screenshots/${round}/${koName}.jpeg`,
       });
+
+      if (process.env.NOTICE_TO_USER === 'true') {
+        await slack.files.uploadV2({
+          thread_ts: ts,
+          channel_id: user[koName],
+          filename: `${round}-${koName}.jpeg`,
+          initial_comment: getComment({
+            round,
+            koName,
+            contentUrl,
+            testCase,
+            realHeight,
+            codeRatio,
+            totalCharacterCount,
+            minimumRequiredCharacterCount,
+            minimumRequiredHeight,
+            maximumCodeRatio,
+            isNoticeToUser: true,
+          }),
+          file: `./screenshots/${round}/${koName}.jpeg`,
+        });
+      }
     }
   });
 }

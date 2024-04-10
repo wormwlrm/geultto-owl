@@ -6,13 +6,26 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-async function main() {
-  const doc = new GoogleSpreadsheet(process.env.SHEET_ID as string, {
-    apiKey: process.env.GOOGLE_API_KEY as string,
-  });
+async function getUser(doc: GoogleSpreadsheet) {
+  const sheet = doc.sheetsById[370617765];
 
-  await doc.loadInfo();
+  const rows = await sheet.getRows();
 
+  const user = rows
+    .filter((row) => {
+      return row.get('채널ID') && row.get('이름');
+    })
+    .map((row) => ({
+      [row.get('이름')]: row.get('채널ID'),
+    }))
+    .reduce((acc, cur) => {
+      return { ...acc, ...cur };
+    }, {});
+
+  fs.writeFileSync(path.join(__dirname, 'user.json'), JSON.stringify(user));
+}
+
+async function getSubmission(doc: GoogleSpreadsheet) {
   const sheet = doc.sheetsById[0];
 
   const rows = await sheet.getRows();
@@ -41,10 +54,22 @@ async function main() {
         title: row.get('title'),
         contentUrl: row.get('content_url'),
         dt: formatDateTime(row.get('dt')).format('YYYY-MM-DD'),
+        ts: row.get('ts'),
       };
     });
 
   fs.writeFileSync(path.join(__dirname, 'data.json'), JSON.stringify(today));
+}
+
+async function main() {
+  const doc = new GoogleSpreadsheet(process.env.SHEET_ID as string, {
+    apiKey: process.env.GOOGLE_API_KEY as string,
+  });
+
+  await doc.loadInfo();
+
+  await getUser(doc);
+  await getSubmission(doc);
 }
 
 main();

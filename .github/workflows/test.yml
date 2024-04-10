@@ -6,6 +6,12 @@ on:
     - cron: 1 15 * * *
   workflow_dispatch:
     # 이 옵션을 설정해주어야 Github 웹에서 매뉴얼하게 실행 가능
+    inputs:
+      NOTICE_TO_USER:
+        description: '결과 메시지를 사용자에게도 전송하기'
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   build:
@@ -15,7 +21,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v2
         with:
-          node-version: '18'
+          node-version: 18
       - name: Install dependencies
         run: npm i -g yarn && yarn && yarn playwright install
       - name: Run checker
@@ -25,3 +31,4 @@ jobs:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+          NOTICE_TO_USER: ${{ github.event.inputs.NOTICE_TO_USER == 'true' || github.event_name == 'schedule'}}

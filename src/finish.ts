@@ -1,5 +1,6 @@
 import { WebClient } from '@slack/web-api';
 import dotenv from 'dotenv';
+import message from './message.json';
 
 dotenv.config();
 
@@ -8,7 +9,8 @@ async function main() {
 
   await slack.chat.postMessage({
     channel: process.env.SLACK_CHANNEL_ID || '',
-    text: '테스트 끝',
+    thread_ts: message.ts,
+    text: '테스트 끝!',
   });
 }
 

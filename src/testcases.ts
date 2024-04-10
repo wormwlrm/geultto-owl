@@ -1,5 +1,5 @@
 import { Page } from '@playwright/test';
-import { BlogType, getMinimumRequiredHeight } from './blog';
+import { BlogType } from './blog';
 
 export const getMinimumRequiredHeightTest = async ({
   page,
@@ -12,7 +12,7 @@ export const getMinimumRequiredHeightTest = async ({
   realHeight: number;
   codeHeight: number;
 }> => {
-  const minimumRequiredHeight = getMinimumRequiredHeight({ blogType });
+  const minimumRequiredHeight = 2000;
 
   const codeHeight = await page.evaluate(() => {
     const elements = document.querySelectorAll('code');
@@ -63,8 +63,8 @@ export const getSumOfCharacterCountTest = async ({
   blogType: BlogType;
   page: Page;
 }) => {
-  const minimumRequiredCharacterCount = 1000;
-  let tagToCheck = ['p', 'li', 'ol', 'ul'];
+  const minimumRequiredCharacterCount = 900;
+  let tagsToCheck = ['p', 'li', 'ol', 'ul', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
 
   if (
     [
@@ -72,21 +72,27 @@ export const getSumOfCharacterCountTest = async ({
       BlogType.NotionSo,
       BlogType.Inblog,
       BlogType.Oopy,
+      BlogType.NotionBased,
     ].includes(blogType)
   ) {
-    tagToCheck.push('div');
+    tagsToCheck.push('div[class^="notion-"]');
   }
 
-  let totalCharacterCount: number = 0;
+  const characters = new Set<string>();
 
-  for (const tag of tagToCheck) {
+  for (const tag of tagsToCheck) {
     const texts = await page.locator(tag).allTextContents();
 
-    totalCharacterCount += texts.reduce((acc, cur) => {
-      // 공백과 줄바꿈 삭제
-      return acc + cur.replaceAll(/[\r\n\t\s]/g, '').length;
-    }, 0);
+    texts.forEach((text) => {
+      characters.add(text.trim().replaceAll(/[\r\n\t\s]/g, ''));
+    });
   }
+
+  console.log(characters);
+
+  const totalCharacterCount = Array.from(characters).reduce((acc, cur) => {
+    return acc + cur.length;
+  }, 0);
 
   return {
     totalCharacterCount,
