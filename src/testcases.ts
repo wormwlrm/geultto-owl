@@ -64,7 +64,7 @@ export const getSumOfCharacterCountTest = async ({
   page: Page;
 }) => {
   const minimumRequiredCharacterCount = 900;
-  let tagsToCheck = ['p', 'li', 'ol', 'ul', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+  let tagsToCheck = ['p', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
 
   if (
     [
@@ -81,11 +81,19 @@ export const getSumOfCharacterCountTest = async ({
   const characters = new Set<string>();
 
   for (const tag of tagsToCheck) {
-    const texts = await page.locator(tag).allTextContents();
+    for (const content of await page.locator(tag).all()) {
+      if (!(await content.isVisible())) {
+        continue;
+      }
 
-    texts.forEach((text) => {
+      const text = await content.textContent();
+
+      if (!text || text.trim() === '') {
+        continue;
+      }
+
       characters.add(text.trim().replaceAll(/[\r\n\t\s]/g, ''));
-    });
+    }
   }
 
   console.log(characters);

@@ -35,6 +35,7 @@ const getComment = ({
   codeRatio,
   maximumCodeRatio,
   isNoticeToUser,
+  ts,
 }: {
   round: string;
   koName: string;
@@ -51,24 +52,30 @@ const getComment = ({
   minimumRequiredCharacterCount: number;
   maximumCodeRatio: number;
   isNoticeToUser: boolean;
-}) => `${koName} 님의 ${round} <${contentUrl}|제출 글>을 분석했빼미! :owl:
+  ts?: string;
+}) => `${koName} 님이 <https://geultto9.slack.com/archives/${
+  user[koName]
+}/p${ts?.replace(
+  '.',
+  ''
+)}|${round} 제출>로 <${contentUrl}|작성한 글>을 분석했빼미! :owl:
 
 ${
   testCase.characterCount ? ':white_check_mark:' : ':warning:'
-} 글자 수는 (${totalCharacterCount}자 / ${minimumRequiredCharacterCount}자) 로 파악했빼미.
-${
+} 글자 수는 (${totalCharacterCount}자 / ${minimumRequiredCharacterCount}자) 로 파악했빼미.${
   isNoticeToUser
     ? ''
-    : `${
-        testCase.height ? ':white_check_mark:' : ':warning:'
-      } 코드 블럭을 제외한 본문 높이는 (${realHeight}px / ${minimumRequiredHeight}px) 으로 파악했빼미.`
-}
+    : `
 ${
+  testCase.height ? ':white_check_mark:' : ':warning:'
+} 코드 블럭을 제외한 본문 높이는 (${realHeight}px / ${minimumRequiredHeight}px) 으로 파악했빼미.`
+}${
   isNoticeToUser
     ? ''
-    : `${
-        testCase.codeRatio ? ':white_check_mark:' : ':warning:'
-      } 전체 높이 기준 코드 비율은 (${codeRatio}% / ${maximumCodeRatio}%) 로 파악했빼미.`
+    : `
+${
+  testCase.codeRatio ? ':white_check_mark:' : ':warning:'
+} 전체 높이 기준 코드 비율은 (${codeRatio}% / ${maximumCodeRatio}%) 로 파악했빼미.`
 }
 
 블로그 플랫폼의 종류, HTML 구조에 따라 결과가 다소 다르게 나올 수도 있음을 참고해빼미!`;
@@ -231,11 +238,12 @@ for (const line of data) {
           minimumRequiredHeight,
           maximumCodeRatio,
           isNoticeToUser: false,
+          ts: ts,
         }),
         file: `./screenshots/${round}/${koName}.jpeg`,
       });
 
-      if (process.env.NOTICE_TO_USER === 'true') {
+      if (process.env.CI === 'true' || process.env.NOTICE_TO_USER === 'true') {
         await slack.files.uploadV2({
           thread_ts: ts,
           channel_id: user[koName],
