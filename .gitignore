@@ -8,8 +8,6 @@ screenshots
 *.csv
 /dist
 
-src/data.json
-src/message.json
-src/user.json
+src/*.json
 
 .env

@@ -1,6 +1,7 @@
 import { test, Page } from '@playwright/test';
 import data from './data.json';
 import user from './user.json';
+import failedCount from './failedCount.json';
 import { WebClient } from '@slack/web-api';
 import message from './message.json';
 import {
@@ -9,6 +10,8 @@ import {
 } from './testcases.ts';
 import { guessBlogTypeByUrl, BlogType } from './blog.ts';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 
 dotenv.config();
 
@@ -203,6 +206,13 @@ for (const line of data) {
 
     if (totalCharacterCount < minimumRequiredCharacterCount) {
       testCase.characterCount = false;
+    }
+
+    const isFailed =
+      !testCase.height || !testCase.codeRatio || !testCase.characterCount;
+
+    if (isFailed) {
+      fs.appendFileSync(path.join(__dirname, 'failedCount.json'), '1');
     }
 
     // 실패 시 스크린샷 촬영 후 슬랙 전송
