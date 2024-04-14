@@ -45,8 +45,6 @@ export const getMinimumRequiredHeightTest = async ({
     heights.push(notionHeight);
   }
 
-  console.log(...heights, codeHeight);
-
   const realHeight = Math.max(...heights) - codeHeight;
 
   return {
@@ -95,8 +93,6 @@ export const getSumOfCharacterCountTest = async ({
       characters.add(text.trim().replaceAll(/[\r\n\t\s]/g, ''));
     }
   }
-
-  console.log(Array.from(characters).join(''));
 
   const totalCharacterCount = Array.from(characters).reduce((acc, cur) => {
     return acc + cur.length;

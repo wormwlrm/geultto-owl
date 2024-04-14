@@ -15,8 +15,6 @@ async function main() {
     text: `${dayjs().add(9, 'hour').format('YYYY-MM-DD HH:mm:ss')} 테스트`,
   });
 
-  console.log(message);
-
   fs.writeFileSync(
     path.join(__dirname, 'message.json'),
     JSON.stringify({

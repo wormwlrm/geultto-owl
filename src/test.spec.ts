@@ -255,25 +255,25 @@ for (const line of data) {
 
       // 사용자에게 직접 전송은 CI 환경에서 GitHub Actions 체크 박스 활성화 또는 크론잡 실행 시에만
       if (process.env.CI === 'true' && process.env.NOTICE_TO_USER === 'true') {
-        await slack.files.uploadV2({
-          thread_ts: ts,
-          channel_id: user[koName],
-          filename: `${round}-${koName}.jpeg`,
-          initial_comment: getComment({
-            round,
-            koName,
-            contentUrl,
-            testCase,
-            realHeight,
-            codeRatio,
-            totalCharacterCount,
-            minimumRequiredCharacterCount,
-            minimumRequiredHeight,
-            maximumCodeRatio,
-            isNoticeToUser: true,
-          }),
-          file: `./screenshots/${round}/${koName}.jpeg`,
-        });
+        // await slack.files.uploadV2({
+        //   thread_ts: ts,
+        //   channel_id: user[koName],
+        //   filename: `${round}-${koName}.jpeg`,
+        //   initial_comment: getComment({
+        //     round,
+        //     koName,
+        //     contentUrl,
+        //     testCase,
+        //     realHeight,
+        //     codeRatio,
+        //     totalCharacterCount,
+        //     minimumRequiredCharacterCount,
+        //     minimumRequiredHeight,
+        //     maximumCodeRatio,
+        //     isNoticeToUser: true,
+        //   }),
+        //   file: `./screenshots/${round}/${koName}.jpeg`,
+        // });
       }
     }
   });
