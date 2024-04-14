@@ -69,7 +69,7 @@ async function getSubmission(doc: GoogleSpreadsheet) {
 
   // CI에서 돌 때는 한국시간 9시간 더해줌
   if (process.env.CI === 'true') {
-    currentTimeInKST.add(9, 'hour');
+    currentTimeInKST = currentTimeInKST.add(9, 'hour');
   }
 
   // 크롤링 범위를 정확하게 지정하기
