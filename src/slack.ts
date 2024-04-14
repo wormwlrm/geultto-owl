@@ -24,7 +24,7 @@ async function main() {
   );
 
   // 실패 케이스 계산을 위한 json 파일 초기화
-  fs.writeFileSync(path.join(__dirname, 'failedCount.json'), '');
+  fs.writeFileSync(path.join(__dirname, 'isFailed.json'), 'false');
 }
 
 main();

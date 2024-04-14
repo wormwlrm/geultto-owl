@@ -1,7 +1,6 @@
 import { test, Page } from '@playwright/test';
 import data from './data.json';
 import user from './user.json';
-import failedCount from './failedCount.json';
 import { WebClient } from '@slack/web-api';
 import message from './message.json';
 import {
@@ -212,7 +211,7 @@ for (const line of data) {
       !testCase.height || !testCase.codeRatio || !testCase.characterCount;
 
     if (isFailed) {
-      fs.appendFileSync(path.join(__dirname, 'failedCount.json'), '1');
+      fs.writeFileSync(path.join(__dirname, 'isFailed.json'), 'true');
     }
 
     // 실패 시 스크린샷 촬영 후 슬랙 전송
