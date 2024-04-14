@@ -96,7 +96,7 @@ export const getSumOfCharacterCountTest = async ({
     }
   }
 
-  console.log(characters);
+  console.log(Array.from(characters).join(''));
 
   const totalCharacterCount = Array.from(characters).reduce((acc, cur) => {
     return acc + cur.length;
