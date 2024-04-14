@@ -10,6 +10,8 @@ async function main() {
   const sungyoon = `U0666UTKF8W`;
   const jongyoon = `U06673WCJP8`;
 
+  console.log(failedCount, typeof failedCount);
+
   await slack.chat.postMessage({
     channel: process.env.SLACK_CHANNEL_ID || '',
     text: `테스트 끝! ${
