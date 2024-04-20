@@ -270,6 +270,7 @@ for (const line of data) {
             minimumRequiredHeight,
             maximumCodeRatio,
             isNoticeToUser: true,
+            ts: ts,
           }),
           file: `./screenshots/${round}/${koName}.jpeg`,
         });
