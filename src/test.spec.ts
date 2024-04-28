@@ -64,7 +64,7 @@ const getComment = ({
 
 ${
   testCase.characterCount ? ':white_check_mark:' : ':warning:'
-} 글자 수는 (${totalCharacterCount}자 / ${minimumRequiredCharacterCount}자) 로 파악했빼미.${
+} 코드를 제외한 글자 수는 (${totalCharacterCount}자 / ${minimumRequiredCharacterCount}자) 로 파악했빼미.${
   isNoticeToUser
     ? ''
     : `
@@ -78,6 +78,11 @@ ${
 ${
   testCase.codeRatio ? ':white_check_mark:' : ':warning:'
 } 전체 높이 기준 코드 비율은 (${codeRatio}% / ${maximumCodeRatio}%) 로 파악했빼미.`
+}${
+  testCase.characterCount
+    ? ''
+    : `
+글자 수가 기준 미달인 경우에는 제출로 인정이 어려울 수 있으니, 조금 더 내용을 작성해 보는게 어떨까빼미?`
 }
 
 블로그 플랫폼의 종류, HTML 구조에 따라 결과가 다소 다르게 나올 수도 있음을 참고해빼미!`;
