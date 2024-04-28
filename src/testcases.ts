@@ -64,16 +64,12 @@ export const getSumOfCharacterCountTest = async ({
   const minimumRequiredCharacterCount = 900;
   let tagsToCheck = ['p', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
 
-  if (
-    [
-      BlogType.NotionSite,
-      BlogType.NotionSo,
-      BlogType.Inblog,
-      BlogType.Oopy,
-      BlogType.NotionBased,
-    ].includes(blogType)
-  ) {
+  if ([BlogType.Inblog, BlogType.NotionBased].includes(blogType)) {
     tagsToCheck.push('div[class^="notion-"]');
+  } else if (
+    [BlogType.NotionSite, BlogType.NotionSo, BlogType.Oopy].includes(blogType)
+  ) {
+    tagsToCheck.push('div.notion-page-content div[class^="notion-"]');
   }
 
   const characters = new Set<string>();
