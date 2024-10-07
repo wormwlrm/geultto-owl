@@ -85,7 +85,11 @@ ${
 글자 수가 기준 미달인 경우에는 제출로 인정이 어려울 수 있으니, 조금 더 내용을 작성해 보는게 어떨까빼미?`
 }
 
-블로그 플랫폼의 종류, HTML 구조에 따라 결과가 다소 다르게 나올 수도 있음을 참고해빼미!`;
+${
+  isNoticeToUser
+    ? '블로그 플랫폼의 종류, HTML 구조에 따라 결과가 다소 다르게 나올 수도 있음을 참고해빼미!'
+    : ''
+}`;
 
 const connect = async ({
   blogType,
@@ -219,23 +223,23 @@ for (const line of data) {
       fs.writeFileSync(path.join(__dirname, 'isFailed.json'), 'true');
     }
 
-    // 실패 시 스크린샷 촬영 후 슬랙 전송
-    // TODO: 임시로 모든 유저에게 전송
-    if (true) {
-      const screenshotOptions = getScreenshotOptions(round, koName);
-      if (blogType === BlogType.NotionSite) {
-        await page
-          .locator('div[data-content-editable-root="true"]')
-          .first()
-          .screenshot({
-            ...screenshotOptions,
-          });
-      } else {
-        await page.screenshot({
+    // 스크린샷 촬영 후 슬랙 전송
+    const screenshotOptions = getScreenshotOptions(round, koName);
+    if (blogType === BlogType.NotionSite) {
+      await page
+        .locator('div[data-content-editable-root="true"]')
+        .first()
+        .screenshot({
           ...screenshotOptions,
         });
-      }
+    } else {
+      await page.screenshot({
+        ...screenshotOptions,
+      });
+    }
 
+    // 실패 케이스만 스크린샷 전송
+    if (isFailed) {
       await slack.files.uploadV2({
         thread_ts: message?.ts,
         channel_id: message?.channel,
@@ -256,30 +260,52 @@ for (const line of data) {
         }),
         file: `./screenshots/${round}/${koName}.jpeg`,
       });
+    } else {
+      await slack.chat.postMessage({
+        channel: process.env.SLACK_CHANNEL_ID || '',
+        thread_ts: message?.ts,
+        unfurl_links: true,
+        unfurl_media: true,
+        text: getComment({
+          round,
+          koName,
+          contentUrl,
+          testCase,
+          realHeight,
+          codeRatio,
+          totalCharacterCount,
+          minimumRequiredCharacterCount,
+          minimumRequiredHeight,
+          maximumCodeRatio,
+          isNoticeToUser: false,
+          ts: ts,
+        }),
+      });
+    }
 
-      // 사용자에게 직접 전송은 CI 환경에서 GitHub Actions 체크 박스 활성화 또는 크론잡 실행 시에만
-      if (process.env.CI === 'true' && process.env.NOTICE_TO_USER === 'true') {
-        await slack.files.uploadV2({
-          thread_ts: ts,
-          channel_id: user[koName],
-          filename: `${round}-${koName}.jpeg`,
-          initial_comment: getComment({
-            round,
-            koName,
-            contentUrl,
-            testCase,
-            realHeight,
-            codeRatio,
-            totalCharacterCount,
-            minimumRequiredCharacterCount,
-            minimumRequiredHeight,
-            maximumCodeRatio,
-            isNoticeToUser: true,
-            ts: ts,
-          }),
-          file: `./screenshots/${round}/${koName}.jpeg`,
-        });
-      }
+    // 사용자에게 직접 전송은 CI 환경에서 GitHub Actions 체크 박스 활성화 또는 크론잡 실행 시에만
+    if (process.env.CI === 'true' && process.env.NOTICE_TO_USER === 'true') {
+      // TODO: 여기 주석 해제
+      // await slack.files.uploadV2({
+      //   thread_ts: ts,
+      //   channel_id: user[koName],
+      //   filename: `${round}-${koName}.jpeg`,
+      //   initial_comment: getComment({
+      //     round,
+      //     koName,
+      //     contentUrl,
+      //     testCase,
+      //     realHeight,
+      //     codeRatio,
+      //     totalCharacterCount,
+      //     minimumRequiredCharacterCount,
+      //     minimumRequiredHeight,
+      //     maximumCodeRatio,
+      //     isNoticeToUser: true,
+      //     ts: ts,
+      //   }),
+      //   file: `./screenshots/${round}/${koName}.jpeg`,
+      // });
     }
   });
 }

@@ -66,10 +66,12 @@ async function getSubmission(doc: GoogleSpreadsheet) {
 
   // 한국 시간 기준으로 계산
   // 혹시 테스트 시간 필요하면 여기서 수정
+  // TODO: 체크 필요
   let currentTimeInKST = dayjs().set('minute', 0).set('second', 0);
 
-  // CI에서 돌 때는 한국시간 9시간 더해줌
+  // CI에서 돌 때는 초기화, 한국시간 9시간 더해줌
   if (process.env.CI === 'true') {
+    currentTimeInKST = dayjs().set('minute', 0).set('second', 0);
     currentTimeInKST = currentTimeInKST.add(9, 'hour');
   }
 

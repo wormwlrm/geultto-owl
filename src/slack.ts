@@ -9,10 +9,16 @@ dotenv.config();
 async function main() {
   const slack = new WebClient(process.env.SLACK_BOT_TOKEN || '');
 
+  let currentTimeInKST = dayjs();
+
+  // CI에서 돌 때는 한국시간 9시간 더해줌
+  if (process.env.CI === 'true') {
+    currentTimeInKST = currentTimeInKST.add(9, 'hour');
+  }
+
   const message = await slack.chat.postMessage({
     channel: process.env.SLACK_CHANNEL_ID || '',
-    // 한국시간 9시간 더해줌
-    text: `${dayjs().add(9, 'hour').format('YYYY-MM-DD HH:mm:ss')} 테스트`,
+    text: `${currentTimeInKST.format('YYYY-MM-DD HH:mm:ss')} 테스트`,
   });
 
   fs.writeFileSync(
