@@ -18,7 +18,9 @@ async function main() {
 
   const message = await slack.chat.postMessage({
     channel: process.env.SLACK_CHANNEL_ID || '',
-    text: `${currentTimeInKST.format('YYYY-MM-DD HH:mm:ss')} 테스트`,
+    text: `${currentTimeInKST.format('YYYY-MM-DD HH:mm:ss')}에 ${
+      process.env.CI === 'true' ? '자동' : '수동'
+    }으로 테스트를 실행하고 있다빼미.`,
   });
 
   fs.writeFileSync(
