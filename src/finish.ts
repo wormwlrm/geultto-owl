@@ -7,10 +7,8 @@ dotenv.config();
 async function main() {
   const slack = new WebClient(process.env.SLACK_BOT_TOKEN || '');
 
-  const sungyoon = `U0666UTKF8W`;
-  const jongyoon = `U06673WCJP8`;
-
-  console.log(isFailed, typeof isFailed);
+  const sungyoon = `성윤`;
+  const jongyoon = `종윤`;
 
   await slack.chat.postMessage({
     channel: process.env.SLACK_CHANNEL_ID || '',

@@ -40,4 +40,4 @@ jobs:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
-          NOTICE_TO_USER: ${{ github.event.inputs.NOTICE_TO_USER == 'true' || github.event_name == 'schedule'}}
+          NOTICE_TO_USER: ${{ github.event.inputs.NOTICE_TO_USER == 'true' || github.event_name == 'schedule' }}

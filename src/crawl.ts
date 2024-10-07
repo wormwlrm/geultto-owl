@@ -13,10 +13,10 @@ async function getUser(doc: GoogleSpreadsheet) {
 
   const user = rows
     .filter((row) => {
-      return row.get('채널ID') && row.get('이름');
+      return row.get('채널이름') && row.get('이름');
     })
     .map((row) => ({
-      [row.get('이름')]: row.get('채널ID'),
+      [row.get('이름')]: row.get('채널이름'),
     }))
     .reduce((acc, cur) => {
       return { ...acc, ...cur };
@@ -100,7 +100,7 @@ async function getSubmission(doc: GoogleSpreadsheet) {
 
   let to = currentTimeInKST;
 
-  console.log(from, to);
+  console.log(from.format(), to.format());
 
   const today = rows
     .filter((row) => {
