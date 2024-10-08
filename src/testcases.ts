@@ -61,7 +61,7 @@ export const getSumOfCharacterCountTest = async ({
   blogType: BlogType;
   page: Page;
 }) => {
-  const minimumRequiredCharacterCount = 900;
+  const minimumRequiredCharacterCount = 1000;
   let tagsToCheck = ['p', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
 
   if ([BlogType.Inblog, BlogType.NotionBased].includes(blogType)) {

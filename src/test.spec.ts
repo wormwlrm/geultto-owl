@@ -55,7 +55,7 @@ const getComment = ({
   maximumCodeRatio: number;
   isNoticeToUser: boolean;
   ts?: string;
-}) => `${koName} 님이 <https://geultto9.slack.com/archives/${
+}) => `${koName} 님이 <https://geultto10.slack.com/archives/${
   user[koName]
 }/p${ts?.replace(
   '.',
@@ -264,8 +264,8 @@ for (const line of data) {
       await slack.chat.postMessage({
         channel: process.env.SLACK_CHANNEL_ID || '',
         thread_ts: message?.ts,
-        unfurl_links: true,
-        unfurl_media: true,
+        unfurl_links: false,
+        unfurl_media: false,
         text: getComment({
           round,
           koName,
