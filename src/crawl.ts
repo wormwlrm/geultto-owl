@@ -13,10 +13,10 @@ async function getUser(doc: GoogleSpreadsheet) {
 
   const user = rows
     .filter((row) => {
-      return row.get('채널이름') && row.get('이름');
+      return row.get('채널 아이디') && row.get('이름');
     })
     .map((row) => ({
-      [row.get('이름')]: row.get('채널이름'),
+      [row.get('이름')]: row.get('채널 아이디'),
     }))
     .reduce((acc, cur) => {
       return { ...acc, ...cur };
