@@ -14,6 +14,8 @@ import path from 'path';
 
 dotenv.config();
 
+const sungyoon = `U07NR02CHJR`;
+
 const map = new Map();
 const slack = new WebClient(process.env.SLACK_BOT_TOKEN || '');
 
@@ -64,7 +66,7 @@ const getComment = ({
 
 ${
   testCase.characterCount ? ':white_check_mark:' : ':warning:'
-} 코드를 제외한 글자 수는 (${totalCharacterCount}자 / ${minimumRequiredCharacterCount}자) 로 파악했빼미.${
+} 공백과 코드를 제외한 글자 수는 (${totalCharacterCount}자 / ${minimumRequiredCharacterCount}자) 로 파악했빼미.${
   isNoticeToUser
     ? ''
     : `
@@ -82,7 +84,12 @@ ${
   testCase.characterCount
     ? ''
     : `
-글자 수가 기준 미달인 경우에는 제출로 인정이 어려울 수 있으니, 조금 더 내용을 작성해 보는게 어떨까빼미?`
+
+:exclamation: ${koName} 님은 공백과 코드를 제외한 *${
+        minimumRequiredCharacterCount - totalCharacterCount
+      }자를 추가로 작성해야 제출로 인정이 가능* 하다빼미! 한 번 더 써보는 게 어떨까빼미? ${
+        isNoticeToUser ? `<@${sungyoon}>` : ''
+      }`
 }
 
 ${
@@ -164,7 +171,7 @@ for (const line of data) {
 
   map.set(koName, true);
 
-  test(`${koName} 테스트`, async ({ page }) => {
+  test(`[${team}] ${koName} - ${title}`, async ({ page }) => {
     let blogType = guessBlogTypeByUrl(contentUrl);
 
     await connect({
@@ -278,34 +285,33 @@ for (const line of data) {
           minimumRequiredHeight,
           maximumCodeRatio,
           isNoticeToUser: false,
-          ts: ts,
+          ts,
         }),
       });
     }
 
     // 사용자에게 직접 전송은 CI 환경에서 GitHub Actions 체크 박스 활성화 또는 크론잡 실행 시에만
     if (process.env.CI === 'true' && process.env.NOTICE_TO_USER === 'true') {
-      // TODO: 여기 주석 해제
-      // await slack.files.uploadV2({
-      //   thread_ts: ts,
-      //   channel_id: user[koName],
-      //   filename: `${round}-${koName}.jpeg`,
-      //   initial_comment: getComment({
-      //     round,
-      //     koName,
-      //     contentUrl,
-      //     testCase,
-      //     realHeight,
-      //     codeRatio,
-      //     totalCharacterCount,
-      //     minimumRequiredCharacterCount,
-      //     minimumRequiredHeight,
-      //     maximumCodeRatio,
-      //     isNoticeToUser: true,
-      //     ts: ts,
-      //   }),
-      //   file: `./screenshots/${round}/${koName}.jpeg`,
-      // });
+      await slack.files.uploadV2({
+        thread_ts: ts,
+        channel_id: user[koName],
+        filename: `${round}-${koName}.jpeg`,
+        initial_comment: getComment({
+          round,
+          koName,
+          contentUrl,
+          testCase,
+          realHeight,
+          codeRatio,
+          totalCharacterCount,
+          minimumRequiredCharacterCount,
+          minimumRequiredHeight,
+          maximumCodeRatio,
+          isNoticeToUser: true,
+          ts: ts,
+        }),
+        file: `./screenshots/${round}/${koName}.jpeg`,
+      });
     }
   });
 }
