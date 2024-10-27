@@ -86,16 +86,16 @@ async function getSubmission(doc: GoogleSpreadsheet) {
     if (currentTimeInKST.hour() === 0) {
       from = currentTimeInKST.subtract(1, 'day');
     } else {
-      // 자정 아닌 시간은 3시간 전까지의 글 테스트
-      from = currentTimeInKST.subtract(3, 'hour');
+      // 자정 아닌 시간은 2시간 전까지의 글 테스트
+      from = currentTimeInKST.subtract(2, 'hour');
     }
   } else if (currentTimeInKST.day() === 0) {
-    // 일요일은 항상 3시간 전까지의 글 테스트
-    from = currentTimeInKST.subtract(3, 'hour');
+    // 일요일은 항상 2시간 전까지의 글 테스트
+    from = currentTimeInKST.subtract(2, 'hour');
   } else if (currentTimeInKST.day() === 1) {
     // 월요일 자정은 일요일까지 제출된 글을 테스트함
-    // 따라서 현재 시간에서 3시간만 빼면 됨
-    from = currentTimeInKST.subtract(3, 'hour');
+    // 따라서 현재 시간에서 2시간만 빼면 됨
+    from = currentTimeInKST.subtract(2, 'hour');
   } else {
     // 평일은 24시간 주기로 데이터를 가져오기
     from = dayjs(currentTimeInKST).subtract(1, 'day');
