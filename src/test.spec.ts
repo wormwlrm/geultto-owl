@@ -16,7 +16,6 @@ dotenv.config();
 
 const sungyoon = `U07NR02CHJR`;
 
-const map = new Map();
 const slack = new WebClient(process.env.SLACK_BOT_TOKEN || '');
 
 const getScreenshotOptions = (round, koName) => {
@@ -169,9 +168,7 @@ test.describe('테스트 시작', () => {
 for (const line of data) {
   const { round, team, koName, dt, title, contentUrl, ts } = line;
 
-  if (contentUrl === '' || map.has(koName)) continue;
-
-  map.set(koName, true);
+  if (contentUrl === '') continue;
 
   test(`[${team}] ${koName} - ${title}`, async ({ page }) => {
     let blogType = guessBlogTypeByUrl(contentUrl);
