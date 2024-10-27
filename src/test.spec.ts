@@ -23,7 +23,7 @@ const getScreenshotOptions = (round, koName) => {
   return {
     path: `screenshots/${round}/${koName}.jpeg`,
     fullPage: true,
-    quality: 0,
+    quality: 1,
   };
 };
 
@@ -31,6 +31,7 @@ const getComment = ({
   round,
   koName,
   contentUrl,
+  title,
   testCase,
   realHeight,
   totalCharacterCount,
@@ -44,6 +45,7 @@ const getComment = ({
   round: string;
   koName: string;
   contentUrl: string;
+  title: string;
   testCase: {
     height: boolean;
     characterCount: boolean;
@@ -62,7 +64,7 @@ const getComment = ({
 }/p${ts?.replace(
   '.',
   ''
-)}|${round} 제출>로 <${contentUrl}|작성한 글>을 분석했빼미! :owl:
+)}|${round} 제출>로 <${contentUrl}|작성한 글(_${title}_)>을 분석했빼미! :owl:
 
 ${
   testCase.characterCount ? ':white_check_mark:' : ':warning:'
@@ -254,6 +256,7 @@ for (const line of data) {
         initial_comment: getComment({
           round,
           koName,
+          title,
           contentUrl,
           testCase,
           realHeight,
@@ -276,6 +279,7 @@ for (const line of data) {
         text: getComment({
           round,
           koName,
+          title,
           contentUrl,
           testCase,
           realHeight,
@@ -300,6 +304,7 @@ for (const line of data) {
           round,
           koName,
           contentUrl,
+          title,
           testCase,
           realHeight,
           codeRatio,
