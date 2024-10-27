@@ -26,6 +26,13 @@ const getScreenshotOptions = (round, koName) => {
   };
 };
 
+const escapeTitle = (title: string) => {
+  return title
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+};
+
 const getComment = ({
   round,
   koName,
@@ -63,7 +70,9 @@ const getComment = ({
 }/p${ts?.replace(
   '.',
   ''
-)}|${round} 제출>로 <${contentUrl}|작성한 글(_${title}_)>을 분석했빼미! :owl:
+)}|${round} 제출>로 <${contentUrl}|작성한 글(_${escapeTitle(
+  title
+)}_)>을 분석했빼미! :owl:
 
 ${
   testCase.characterCount ? ':white_check_mark:' : ':warning:'
