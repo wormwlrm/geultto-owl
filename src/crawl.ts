@@ -85,13 +85,27 @@ async function getSubmission(doc: GoogleSpreadsheet) {
     // 자정에 동작하는 크론은 금요일에 작성한 글 테스트
     if (currentTimeInKST.hour() === 0) {
       from = currentTimeInKST.subtract(1, 'day');
+    } else if (currentTimeInKST.hour() === 11) {
+      // 오전 11시에 크론이 동작하면 3시간 치 긁어오기
+      from = currentTimeInKST.subtract(3, 'hour');
+    } else if (currentTimeInKST.hour() === 12) {
+      // 정오에 크론이 동작하면 1시간 치 긁어오기
+      from = currentTimeInKST.subtract(1, 'hour');
     } else {
       // 자정 아닌 시간은 2시간 전까지의 글 테스트
       from = currentTimeInKST.subtract(2, 'hour');
     }
   } else if (currentTimeInKST.day() === 0) {
-    // 일요일은 항상 2시간 전까지의 글 테스트
-    from = currentTimeInKST.subtract(2, 'hour');
+    if (currentTimeInKST.hour() === 11) {
+      // 오전 11시에 크론이 동작하면 3시간 치 긁어오기
+      from = currentTimeInKST.subtract(3, 'hour');
+    } else if (currentTimeInKST.hour() === 12) {
+      // 정오에 크론이 동작하면 1시간 치 긁어오기
+      from = currentTimeInKST.subtract(1, 'hour');
+    } else {
+      // 일요일은 항상 2시간 전까지의 글 테스트
+      from = currentTimeInKST.subtract(2, 'hour');
+    }
   } else if (currentTimeInKST.day() === 1) {
     // 월요일 자정은 일요일까지 제출된 글을 테스트함
     // 따라서 현재 시간에서 2시간만 빼면 됨
