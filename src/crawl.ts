@@ -126,6 +126,9 @@ async function getSubmission(doc: GoogleSpreadsheet) {
 
       return dt.isAfter(from) && dt.isBefore(to);
     })
+    .filter((row) => {
+      return row.get('team').startsWith('3_');
+    })
     .map((row) => {
       return {
         round: row.get('회차'),
