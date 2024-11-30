@@ -11,6 +11,7 @@ import { guessBlogTypeByUrl, BlogType } from './blog.ts';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import { getSummary, TResponse } from './llm.ts';
 
 dotenv.config();
 
@@ -47,6 +48,7 @@ const getComment = ({
   maximumCodeRatio,
   isNoticeToUser,
   ts,
+  llm,
 }: {
   round: string;
   koName: string;
@@ -65,6 +67,7 @@ const getComment = ({
   maximumCodeRatio: number;
   isNoticeToUser: boolean;
   ts?: string;
+  llm?: TResponse;
 }) => `${koName} 님이 <https://geultto10.slack.com/archives/${
   user[koName]
 }/p${ts?.replace(
@@ -100,6 +103,24 @@ ${
       }자를 추가로 작성해야 제출로 인정이 가능* 하다빼미! 한 번 더 써보는 게 어떨까빼미? ${
         isNoticeToUser ? `<@${sungyoon}>` : ''
       }`
+}
+
+${
+  llm?.haiku_comment
+    ? `:bulb: 아래는 *haiku* 모델로 분석한 포스트의 요약이다빼미.
+\`\`\`
+${llm.haiku_comment}
+\`\`\``
+    : ''
+}
+
+${
+  llm?.sonnet_comment
+    ? `:bulb: 아래는 *sonnet* 모델로 분석한 포스트의 요약이다빼미.
+\`\`\`
+${llm.sonnet_comment}
+\`\`\``
+    : ''
 }
 
 ${
@@ -253,6 +274,8 @@ for (const line of data) {
       });
     }
 
+    const llm = await getSummary(contentUrl);
+
     // 실패 케이스만 스크린샷 전송
     if (isFailed) {
       await slack.files.uploadV2({
@@ -273,6 +296,7 @@ for (const line of data) {
           maximumCodeRatio,
           isNoticeToUser: false,
           ts: ts,
+          llm,
         }),
         file: `./screenshots/${round}/${koName}.jpeg`,
       });
@@ -296,6 +320,7 @@ for (const line of data) {
           maximumCodeRatio,
           isNoticeToUser: false,
           ts,
+          llm,
         }),
       });
     }
