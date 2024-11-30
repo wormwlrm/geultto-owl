@@ -27,17 +27,23 @@ export async function getSummary(
 ): Promise<TCommentResponse | undefined> {
   const baseUrl = process.env.LLM_API_URL as string;
 
-  const comments: TCommentResponse[] | TError = await (
-    await fetch(`${baseUrl}/comments`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        urls: [url],
-      }),
-    })
-  ).json();
+  let comments: TCommentResponse[] | TError;
+
+  try {
+    comments = await (
+      await fetch(`${baseUrl}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          urls: [url],
+        }),
+      })
+    ).json();
+  } catch (e) {
+    return undefined;
+  }
 
   if ('message' in comments) {
     return undefined;
@@ -51,19 +57,23 @@ export async function getFeedback(
 ): Promise<TFeedbackResponse | undefined> {
   const baseUrl = process.env.LLM_API_URL as string;
 
-  const feedback: TFeedbackResponse[] | TError = await (
-    await fetch(`${baseUrl}/feedback`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        urls: [url],
-      }),
-    })
-  ).json();
+  let feedback;
 
-  console.log(feedback);
+  try {
+    feedback = await (
+      await fetch(`${baseUrl}/feedback`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          urls: [url],
+        }),
+      })
+    ).json();
+  } catch (e) {
+    return undefined;
+  }
 
   if ('message' in feedback) {
     return undefined;
