@@ -14,9 +14,9 @@ export type TError = {
   message: string;
 };
 
-dotenv.config();
-
 export async function getSummary(url: string): Promise<TResponse | undefined> {
+  dotenv.config();
+
   const baseUrl = process.env.LLM_API_URL as string;
 
   console.log(baseUrl);
