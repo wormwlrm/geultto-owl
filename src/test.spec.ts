@@ -103,10 +103,10 @@ ${
       }자를 추가로 작성해야 제출로 인정이 가능* 하다빼미! 한 번 더 써보는 게 어떨까빼미? ${
         isNoticeToUser ? `<@${sungyoon}>` : ''
       }`
-}${
+}
+${
   llm?.haiku_comment
     ? `
-    
 :bulb: 아래는 *haiku* 모델로 분석한 포스트의 요약이다빼미.
 \`\`\`
 ${llm.haiku_comment}
@@ -115,7 +115,6 @@ ${llm.haiku_comment}
 }${
   llm?.sonnet_comment
     ? `
-    
 :bulb: 아래는 *sonnet* 모델로 분석한 포스트의 요약이다빼미.
 \`\`\`
 ${llm.sonnet_comment}
