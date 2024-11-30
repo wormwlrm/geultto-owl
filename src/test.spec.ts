@@ -11,7 +11,12 @@ import { guessBlogTypeByUrl, BlogType } from './blog.ts';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
-import { getSummary, TResponse } from './llm.ts';
+import {
+  getFeedback,
+  getSummary,
+  TCommentResponse,
+  TFeedbackResponse,
+} from './llm.ts';
 
 dotenv.config();
 
@@ -48,7 +53,8 @@ const getComment = ({
   maximumCodeRatio,
   isNoticeToUser,
   ts,
-  llm,
+  summary,
+  feedback,
 }: {
   round: string;
   koName: string;
@@ -67,7 +73,8 @@ const getComment = ({
   maximumCodeRatio: number;
   isNoticeToUser: boolean;
   ts?: string;
-  llm?: TResponse;
+  summary?: TCommentResponse;
+  feedback?: TFeedbackResponse;
 }) => `${koName} 님이 <https://geultto10.slack.com/archives/${
   user[koName]
 }/p${ts?.replace(
@@ -105,19 +112,27 @@ ${
       }`
 }
 ${
-  llm?.haiku_comment
+  summary?.haiku_comment
     ? `
 :bulb: 아래는 *haiku* 모델로 분석한 포스트의 요약이다빼미.
 \`\`\`
-${llm.haiku_comment}
+${summary.haiku_comment}
 \`\`\``
     : ''
 }${
-  llm?.sonnet_comment
+  summary?.sonnet_comment
     ? `
 :bulb: 아래는 *sonnet* 모델로 분석한 포스트의 요약이다빼미.
 \`\`\`
-${llm.sonnet_comment}
+${summary.sonnet_comment}
+\`\`\``
+    : ''
+}${
+  feedback?.haiku_comment
+    ? `
+:mag: 아래는 *haiku* 모델로 분석한 포스트의 피드백이다빼미.
+\`\`\`
+${feedback.haiku_comment}
 \`\`\``
     : ''
 }
@@ -273,7 +288,8 @@ for (const line of data) {
       });
     }
 
-    const llm = await getSummary(contentUrl);
+    const summary = await getSummary(contentUrl);
+    const feedback = await getFeedback(contentUrl);
 
     // 실패 케이스만 스크린샷 전송
     if (isFailed) {
@@ -295,7 +311,8 @@ for (const line of data) {
           maximumCodeRatio,
           isNoticeToUser: false,
           ts: ts,
-          llm,
+          summary,
+          feedback,
         }),
         file: `./screenshots/${round}/${koName}.jpeg`,
       });
@@ -319,7 +336,8 @@ for (const line of data) {
           maximumCodeRatio,
           isNoticeToUser: false,
           ts,
-          llm,
+          summary,
+          feedback,
         }),
       });
     }
