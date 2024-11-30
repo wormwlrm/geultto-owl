@@ -112,22 +112,6 @@ ${
       }`
 }
 ${
-  summary?.haiku_comment
-    ? `
-:bulb: 아래는 *haiku* 모델로 분석한 포스트의 요약이다빼미.
-\`\`\`
-${summary.haiku_comment}
-\`\`\``
-    : ''
-}${
-  summary?.sonnet_comment
-    ? `
-:bulb: 아래는 *sonnet* 모델로 분석한 포스트의 요약이다빼미.
-\`\`\`
-${summary.sonnet_comment}
-\`\`\``
-    : ''
-}${
   feedback?.haiku_comment
     ? `
 :mag: 아래는 *haiku* 모델로 분석한 포스트의 피드백이다빼미.
@@ -288,7 +272,7 @@ for (const line of data) {
       });
     }
 
-    const summary = await getSummary(contentUrl);
+    // const summary = await getSummary(contentUrl);
     const feedback = await getFeedback(contentUrl);
 
     // 실패 케이스만 스크린샷 전송
@@ -311,7 +295,7 @@ for (const line of data) {
           maximumCodeRatio,
           isNoticeToUser: false,
           ts: ts,
-          summary,
+          // summary,
           feedback,
         }),
         file: `./screenshots/${round}/${koName}.jpeg`,
@@ -336,7 +320,7 @@ for (const line of data) {
           maximumCodeRatio,
           isNoticeToUser: false,
           ts,
-          summary,
+          // summary,
           feedback,
         }),
       });
