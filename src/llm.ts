@@ -17,8 +17,12 @@ export type TError = {
 dotenv.config();
 
 export async function getSummary(url: string): Promise<TResponse | undefined> {
+  const baseUrl = process.env.LLM_API_URL as string;
+
+  console.log(baseUrl);
+
   const response: TResponse[] | TError = await (
-    await fetch(process.env.LLM_API_URL as string, {
+    await fetch(`${baseUrl}/comments`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
