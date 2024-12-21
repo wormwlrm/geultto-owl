@@ -346,6 +346,7 @@ for (const line of data) {
           maximumCodeRatio,
           isNoticeToUser: true,
           ts: ts,
+          feedback,
         }),
         file: `./screenshots/${round}/${koName}.jpeg`,
       });
