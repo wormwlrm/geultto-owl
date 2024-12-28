@@ -94,8 +94,11 @@ export const getSumOfCharacterCountTest = async ({
     return acc + cur.length;
   }, 0);
 
+  const text = Array.from(characters).join('');
+
   return {
     totalCharacterCount,
     minimumRequiredCharacterCount,
+    text,
   };
 };

@@ -11,8 +11,6 @@ export type TCommentResponse = {
 };
 
 export type TFeedbackResponse = {
-  url: string;
-  title: string;
   haiku_comment: string;
 };
 
@@ -53,7 +51,7 @@ export async function getSummary(
 }
 
 export async function getFeedback(
-  url: string
+  text: string
 ): Promise<TFeedbackResponse | undefined> {
   const baseUrl = process.env.LLM_API_URL as string;
 
@@ -67,15 +65,17 @@ export async function getFeedback(
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          urls: [url],
+          text: [text],
         }),
       })
     ).json();
   } catch (e) {
+    console.error(e);
     return undefined;
   }
 
   if ('message' in feedback) {
+    console.error(feedback.message);
     return undefined;
   }
 

@@ -243,7 +243,7 @@ for (const line of data) {
     }
 
     // 글자수 테스트
-    const { totalCharacterCount, minimumRequiredCharacterCount } =
+    const { totalCharacterCount, minimumRequiredCharacterCount, text } =
       await getSumOfCharacterCountTest({ page, blogType });
 
     if (totalCharacterCount < minimumRequiredCharacterCount) {
@@ -273,7 +273,7 @@ for (const line of data) {
     }
 
     // const summary = await getSummary(contentUrl);
-    const feedback = await getFeedback(contentUrl);
+    const feedback = await getFeedback(text);
 
     // 실패 케이스만 스크린샷 전송
     if (isFailed) {
