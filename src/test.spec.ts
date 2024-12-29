@@ -198,7 +198,7 @@ for (const line of data) {
 
   if (contentUrl === '') continue;
 
-  test(`[${team}] ${koName} - ${title}`, async ({ page }) => {
+  test(`[${team}] ${koName} - ${title} - ${contentUrl}`, async ({ page }) => {
     let blogType = guessBlogTypeByUrl(contentUrl);
 
     await connect({
