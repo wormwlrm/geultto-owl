@@ -294,8 +294,7 @@ for (const line of data) {
           minimumRequiredHeight,
           maximumCodeRatio,
           isNoticeToUser: false,
-          ts: ts,
-          // summary,
+          ts,
           feedback,
         }),
         file: `./screenshots/${round}/${koName}.jpeg`,
@@ -320,7 +319,6 @@ for (const line of data) {
           maximumCodeRatio,
           isNoticeToUser: false,
           ts,
-          // summary,
           feedback,
         }),
       });
@@ -345,7 +343,8 @@ for (const line of data) {
           minimumRequiredHeight,
           maximumCodeRatio,
           isNoticeToUser: true,
-          ts: ts,
+          ts,
+          feedback,
         }),
         file: `./screenshots/${round}/${koName}.jpeg`,
       });
