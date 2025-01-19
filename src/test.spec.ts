@@ -116,7 +116,7 @@ ${feedback.haiku_comment}
 \`\`\``
     : '';
 
-  const noticeMessage = true
+  const noticeMessage = isNoticeToUser
     ? ':thought_balloon: 혹시... <https://forms.gle/vtBCibc8Us8xUiVy7|내가 주는 피드백에 대한 의견>을 줄 수 있냐빼미? :owl:'
     : '';
 
