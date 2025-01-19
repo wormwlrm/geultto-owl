@@ -75,57 +75,63 @@ const getComment = ({
   ts?: string;
   summary?: TCommentResponse;
   feedback?: TFeedbackResponse;
-}) => `${koName} 님이 <https://geultto10.slack.com/archives/${
-  user[koName]
-}/p${ts?.replace(
-  '.',
-  ''
-)}|${round} 제출>로 <${contentUrl}|작성한 글(_${escapeTitle(
-  title
-)}_)>을 분석했빼미! :owl:
+}) => {
+  const slackLink = `<https://geultto10.slack.com/archives/${
+    user[koName]
+  }/p${ts?.replace('.', '')}|${round} 제출>`;
+  const postLink = `<${contentUrl}|작성한 글(_${escapeTitle(title)}_)>`;
+  const intro = `${koName} 님이 ${slackLink}로 ${postLink}을 분석했빼미! :owl:`;
 
-${
-  testCase.characterCount ? ':white_check_mark:' : ':warning:'
-} 공백과 코드를 제외한 글자 수는 (${totalCharacterCount}자 / ${minimumRequiredCharacterCount}자) 로 파악했빼미.${
-  isNoticeToUser
-    ? ''
-    : `
-${
-  testCase.height ? ':white_check_mark:' : ':warning:'
-} 코드 블럭을 제외한 본문 높이는 (${realHeight}px / ${minimumRequiredHeight}px) 으로 파악했빼미.`
-}${
-  isNoticeToUser
-    ? ''
-    : `
-${
-  testCase.codeRatio ? ':white_check_mark:' : ':warning:'
-} 전체 높이 기준 코드 비율은 (${codeRatio}% / ${maximumCodeRatio}%) 로 파악했빼미.`
-}${
-  testCase.characterCount
-    ? ''
-    : `
+  const getTestEmoji = (isPassed: boolean) =>
+    isPassed ? ':white_check_mark:' : ':warning:';
 
-:exclamation: ${koName} 님은 공백과 코드를 제외한 *${
+  const characterCountCheck = `\n${getTestEmoji(
+    testCase.characterCount
+  )} 공백과 코드를 제외한 글자 수는 (${totalCharacterCount}자 / ${minimumRequiredCharacterCount}자) 로 파악했빼미.`;
+
+  const heightCheck = isNoticeToUser
+    ? ''
+    : `${getTestEmoji(
+        testCase.height
+      )} 코드 블럭을 제외한 본문 높이는 (${realHeight}px / ${minimumRequiredHeight}px) 으로 파악했빼미.`;
+
+  const codeRatioCheck = isNoticeToUser
+    ? ''
+    : `${getTestEmoji(
+        testCase.codeRatio
+      )} 전체 높이 기준 코드 비율은 (${codeRatio}% / ${maximumCodeRatio}%) 로 파악했빼미.`;
+
+  const additionalWritingNotice = !testCase.characterCount
+    ? `\n:exclamation: ${koName} 님은 공백과 코드를 제외한 *${
         minimumRequiredCharacterCount - totalCharacterCount
       }자를 추가로 작성해야 제출로 인정이 가능* 하다빼미! 한 번 더 써보는 게 어떨까빼미? ${
         isNoticeToUser ? `<@${sungyoon}>` : ''
       }`
-}
-${
-  feedback?.haiku_comment
-    ? `
-:mag: 아래는 *haiku* 모델로 분석한 포스트의 피드백이다빼미.
+    : '';
+
+  const feedbackSection = feedback?.haiku_comment
+    ? `\n:mag: 아래는 *haiku* 모델로 분석한 포스트의 피드백이다빼미.
 \`\`\`
 ${feedback.haiku_comment}
 \`\`\``
-    : ''
-}
+    : '';
 
-${
-  isNoticeToUser
+  const noticeMessage = isNoticeToUser
     ? '블로그 플랫폼의 종류, HTML 구조에 따라 결과가 다소 다르게 나올 수도 있음을 참고해빼미!'
-    : ''
-}`;
+    : '';
+
+  return [
+    intro,
+    characterCountCheck,
+    heightCheck,
+    codeRatioCheck,
+    additionalWritingNotice,
+    feedbackSection,
+    noticeMessage,
+  ]
+    .filter(Boolean)
+    .join('\n');
+};
 
 const connect = async ({
   blogType,
