@@ -116,8 +116,8 @@ ${feedback.haiku_comment}
 \`\`\``
     : '';
 
-  const noticeMessage = isNoticeToUser
-    ? '블로그 플랫폼의 종류, HTML 구조에 따라 결과가 다소 다르게 나올 수도 있음을 참고해빼미!'
+  const noticeMessage = true
+    ? ':thought_balloon: 혹시... <https://forms.gle/vtBCibc8Us8xUiVy7|내가 주는 피드백에 대한 의견>을 줄 수 있냐빼미? :owl:'
     : '';
 
   return [
