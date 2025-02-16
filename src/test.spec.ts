@@ -13,6 +13,7 @@ import fs from 'fs';
 import path from 'path';
 import {
   getFeedback,
+  getFeedbackIntensityName,
   TCommentResponse,
   TFeedbackIntensity,
   TFeedbackResponse,
@@ -55,6 +56,7 @@ const getComment = ({
   ts,
   summary,
   feedback,
+  feedbackIntensityName,
 }: {
   round: string;
   koName: string;
@@ -75,6 +77,7 @@ const getComment = ({
   ts?: string;
   summary?: TCommentResponse;
   feedback?: TFeedbackResponse;
+  feedbackIntensityName: string;
 }) => {
   const slackLink = `<https://geultto10.slack.com/archives/${
     user[koName]
@@ -110,7 +113,7 @@ const getComment = ({
     : '';
 
   const feedbackSection = feedback?.haiku_comment
-    ? `\n:mag: 아래는 *haiku* 모델로 분석한 포스트의 피드백이다빼미.
+    ? `\n:mag: 아래는 *haiku* 모델로 분석한 포스트의 *${feedbackIntensityName}* 피드백이다빼미.
 \`\`\`
 ${feedback.haiku_comment}
 \`\`\``
@@ -281,11 +284,14 @@ for (const line of data) {
       });
     }
 
-    // const summary = await getSummary(contentUrl);
     const feedback = await getFeedback({
       text,
       style: feedback_intensity as TFeedbackIntensity,
     });
+
+    const feedbackIntensityName = getFeedbackIntensityName(
+      feedback_intensity as TFeedbackIntensity
+    );
 
     // 실패 케이스만 스크린샷 전송
     if (isFailed) {
@@ -308,6 +314,7 @@ for (const line of data) {
           isNoticeToUser: false,
           ts,
           feedback,
+          feedbackIntensityName,
         }),
         file: `./screenshots/${round}/${koName}.jpeg`,
       });
@@ -332,6 +339,7 @@ for (const line of data) {
           isNoticeToUser: false,
           ts,
           feedback,
+          feedbackIntensityName,
         }),
       });
     }
@@ -357,6 +365,7 @@ for (const line of data) {
           isNoticeToUser: true,
           ts,
           feedback,
+          feedbackIntensityName,
         }),
         file: `./screenshots/${round}/${koName}.jpeg`,
       });

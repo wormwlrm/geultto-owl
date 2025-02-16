@@ -12,6 +12,7 @@ export type TCommentResponse = {
 
 export type TFeedbackResponse = {
   haiku_comment: string;
+  style: TFeedbackIntensity;
 };
 
 export type TError = {
@@ -21,6 +22,19 @@ export type TError = {
 export type TFeedbackIntensity = 'MILD' | 'HOT' | 'FIRE' | 'DIABLO';
 
 dotenv.config();
+
+export function getFeedbackIntensityName(intensity: TFeedbackIntensity) {
+  switch (intensity) {
+    case 'MILD':
+      return ':seedling: 순한맛';
+    case 'HOT':
+      return ':garlic: 보통맛';
+    case 'FIRE':
+      return ':hot_pepper: 매운맛';
+    case 'DIABLO':
+      return ':skull_and_crossbones: 지옥맛';
+  }
+}
 
 export async function getSummary(
   url: string
