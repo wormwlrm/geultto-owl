@@ -13,8 +13,8 @@ import fs from 'fs';
 import path from 'path';
 import {
   getFeedback,
-  getSummary,
   TCommentResponse,
+  TFeedbackIntensity,
   TFeedbackResponse,
 } from './llm.ts';
 
@@ -200,11 +200,14 @@ test.describe('테스트 시작', () => {
 });
 
 for (const line of data) {
-  const { round, team, koName, dt, title, contentUrl, ts } = line;
+  const { round, team, koName, dt, title, contentUrl, ts, feedback_intensity } =
+    line;
 
   if (contentUrl === '') continue;
 
-  test(`[${team}] ${koName} - ${title} - ${contentUrl}`, async ({ page }) => {
+  test(`[${team} - ${koName}] ${title} - ${contentUrl} - ${ts}`, async ({
+    page,
+  }) => {
     let blogType = guessBlogTypeByUrl(contentUrl);
 
     await connect({
@@ -279,7 +282,10 @@ for (const line of data) {
     }
 
     // const summary = await getSummary(contentUrl);
-    const feedback = await getFeedback(text);
+    const feedback = await getFeedback({
+      text,
+      style: feedback_intensity as TFeedbackIntensity,
+    });
 
     // 실패 케이스만 스크린샷 전송
     if (isFailed) {

@@ -138,6 +138,7 @@ async function getSubmission(doc: GoogleSpreadsheet) {
         contentUrl: row.get('content_url'),
         dt: formatDateTime(row.get('dt')).format('YYYY-MM-DD HH:mm:ss'),
         ts: row.get('ts'),
+        feedback_intensity: row.get('feedback_intensity') ?? 'HOT',
       };
     });
 

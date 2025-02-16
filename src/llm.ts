@@ -18,6 +18,8 @@ export type TError = {
   message: string;
 };
 
+export type TFeedbackIntensity = 'MILD' | 'HOT' | 'FIRE' | 'DIABLO';
+
 dotenv.config();
 
 export async function getSummary(
@@ -50,9 +52,13 @@ export async function getSummary(
   return comments[0];
 }
 
-export async function getFeedback(
-  text: string
-): Promise<TFeedbackResponse | undefined> {
+export async function getFeedback({
+  text,
+  style,
+}: {
+  text: string;
+  style: TFeedbackIntensity;
+}): Promise<TFeedbackResponse | undefined> {
   const baseUrl = process.env.LLM_API_URL as string;
 
   let feedback;
@@ -66,6 +72,7 @@ export async function getFeedback(
         },
         body: JSON.stringify({
           text: [text],
+          style,
         }),
       })
     ).json();
