@@ -7,9 +7,9 @@
     "e2e": "npx playwright test",
     "result": "npx playwright show-report",
     "crawl": "ts-node src/crawl.ts",
-    "slack": "ts-node src/slack.ts",
+    "start": "ts-node src/start.ts",
     "finish": "ts-node src/finish.ts",
-    "test": "yarn crawl && yarn slack && yarn e2e && yarn finish"
+    "test": "yarn crawl && yarn start && yarn e2e && yarn finish"
   },
   "keywords": [],
   "author": "",
